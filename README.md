@@ -14,9 +14,12 @@ Plugin was tested with this board: https://www.aliexpress.com/item/1005004933766
 ### HOW TO INSTALL
 
 1) Make a new src directory called `mbio` in the grblHAL _src_ directory and put the content of this repository in the `mbio` directory.
+
+--------------------------------------------------------------------------------------------------------------------------------------------
 Empyrean: if compiling for STM32F4XX this is how i have done it on my machine
 <img width="188" height="517" alt="image" src="https://github.com/user-attachments/assets/ad80364f-6f53-45ac-8732-b34afbfb0736" />
 
+--------------------------------------------------------------------------------------------------------------------------------------------
 
 3) Edit _grbl/errors.h_ to add new error code into the `status_code_t` enum `Status_GCodeTimeout`. Add this line under `Status_GCodeCoordSystemLocked = 56,`:
 ```
@@ -39,9 +42,11 @@ Empyrean: if compiling for STM32F4XX this is how i have done it on my machine
 	#define MBIO_DEBUG
 ```
 6) Compile and flash your machine and enjoy.
-
+7) 
+--------------------------------------------------------------------------------------------------------------------------------------------
 Empyrean: To use the modifications i have implemented in combination with a modbus driven spindle vfd you will need to use the modified spindle plugin here
-
+https://github.com/EmpyreanCNC/Plugins_spindle_with_MBIO
+--------------------------------------------------------------------------------------------------------------------------------------------
 
 ### HOW TO USE
 
