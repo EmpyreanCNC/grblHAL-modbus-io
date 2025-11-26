@@ -21,6 +21,9 @@ along with this plugin.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef _MBIO_H_
 #define _MBIO_H_
+#define POLLING_INTERVAL    100
+
+#define MBIO_RETRIES     5
 
 #ifndef MBIO_WAIT_STEP 
     #define MBIO_WAIT_STEP 50.0f
