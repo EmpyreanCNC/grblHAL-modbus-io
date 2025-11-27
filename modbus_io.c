@@ -122,6 +122,30 @@ void mbio_ModBus_WriteCoil(char device_address, uint16_t register_address, uint1
     };
     mbio_modbus_send_command(_cmd, true);  
 }
+//added by empyrean 2025-11-26
+void mbio_ModBus_WriteCoils(char device_address, uint16_t register_address, uint16_t value, uint8_t pack) {
+    modbus_message_t _cmd = {
+        .context = (void *)MBIO_Command,
+        .crc_check = true,
+        .adu[0] = device_address,              // slave device address
+        .adu[1] = ModBus_WriteCoils,   // function code 0x0F
+        .adu[2] = MODBUS_SET_MSB16(register_address), // start address MSB
+        .adu[3] = MODBUS_SET_LSB16(register_address), // start address LSB
+        .adu[4] = MODBUS_SET_MSB16(value),  // quantity MSB
+        .adu[5] = MODBUS_SET_LSB16(value),  // quantity LSB
+        .adu[6] = (value + 7) / 8,          // byte count (ceil of bits/8)
+        // coil values packed into bytes follow here
+        .tx_length = 7 + ((value + 7) / 8) + 2, // header + data + CRC
+        .rx_length = 8                           // response length (echo start + quantity)
+    };
+
+    // Copy coil values into ADU after byte count
+    for (int i = 0; i < (value + 7) / 8; i++) {
+        _cmd.adu[7 + i] = pack;
+    }
+
+    mbio_modbus_send_command(_cmd, true);
+}
 
 void mbio_ModBus_ReadDiscreteInputs(char device_address, uint16_t register_address, uint16_t value) {
     modbus_message_t _cmd = {
@@ -257,6 +281,11 @@ static status_code_t mbio_validate(parser_block_t *gc_block, parameter_words_t *
             if (gc_block->words.q && !isintf(gc_block->values.q)) { // Check if Q parameter value is supplied.
                 state = Status_BadNumberFormat;
             }
+            
+            //added by empyrean 2025-11-26
+            if (gc_block->words.r && !isintf(gc_block->values.r)) { // Check if r parameter value is supplied.
+                state = Status_BadNumberFormat;
+            }
 
             // value
             if (state != Status_BadNumberFormat) { // Are required parameters provided?
@@ -265,11 +294,15 @@ static status_code_t mbio_validate(parser_block_t *gc_block, parameter_words_t *
                     ||
                     (gc_block->values.e != (float)ModBus_ReadDiscreteInputs && gc_block->values.e != (float)ModBus_ReadInputRegisters
                         && gc_block->values.e != (float)ModBus_WriteCoil && gc_block->values.e != (float)ModBus_WriteRegister
+                        && gc_block->values.e != (float)ModBus_WriteCoils && gc_block->values.e != (float)ModBus_WriteRegister////added by empyrean 2025-11-26
                         && gc_block->values.e != (float)ModBus_ReadHoldingRegisters && gc_block->values.e != (float)ModBus_ReadCoils)
                     ||
                     gc_block->values.p < 1.0f || gc_block->values.p > 9999.0f
                     ||
-                    gc_block->values.q < 0.0f || gc_block->values.q > 65535.0f) {
+                    gc_block->values.q < 0.0f || gc_block->values.q > 65535.0f 
+                    ||
+                    gc_block->values.r < 0.0f || gc_block->values.r > 65535.0f)
+                    {
                     state = Status_GcodeValueOutOfRange;
                 }
                 else {
@@ -280,12 +313,14 @@ static status_code_t mbio_validate(parser_block_t *gc_block, parameter_words_t *
                             break;
                         case ModBus_WriteCoil:
                             break;
+                        case ModBus_WriteCoils:
+                            break;
                         case ModBus_WriteRegister:
                             break;
                     }
                 	state = Status_OK;
                 }
-                gc_block->words.d = gc_block->words.e = gc_block->words.p = gc_block->words.q = Off; // Claim parameters.
+                gc_block->words.d = gc_block->words.e = gc_block->words.p = gc_block->words.q = gc_block->words.r = Off; // Claim parameters.
                 //gc_block->user_mcode_sync = true;                           // Optional: execute command synchronized
             }
             break;
@@ -353,6 +388,7 @@ static void mbio_execute(sys_state_t state, parser_block_t *gc_block) {
     switch(gc_block->user_mcode) {
         case UserMCode_Generic1 : {
             uint16_t value = (uint16_t)gc_block->values.q;
+            int16_t pack = (uint16_t)gc_block->values.r;
             if ((char)gc_block->values.e == 5) {
                 value = value > 0 ? 0xff00 : 0;
             }
@@ -380,6 +416,10 @@ static void mbio_execute(sys_state_t state, parser_block_t *gc_block) {
 
                 case ModBus_WriteRegister: // 6
                     mbio_ModBus_WriteRegister(device_address, register_address, value);
+                    break;
+
+                case ModBus_WriteCoils: // 15
+                    mbio_ModBus_WriteCoils(device_address, register_address, value, pack);
                     break;
             }
             break;
@@ -458,6 +498,7 @@ static void mbio_rx_packet(modbus_message_t *msg) {
                         }
 
                         case ModBus_WriteCoil:
+                        case ModBus_WriteCoils:
                         case ModBus_WriteRegister:
                             report_message("MODBUS RESPONSE: OK", Message_Plain);
                             break;
