@@ -78,3 +78,24 @@ Format of **M102** is: `M102 D{0..247} P{1..9999} Q{0,1} R{0.0 .. 3600.0}`
 **Examples**
 - read DI2 on slave with address 2, wait for 1 up to 10 seconds: `M102 D2 P2 Q1 R10`
 - read DI6 on slave with address 10, wait for 0 up to 5.4 seconds: `M102 D10 P6 Q0 R5.4`
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+Empyrean: Now with added multiple coil write functionality
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+M101 D1 E15 P1 Q5 R0 = all 4 off
+M101 D1 E15 P1 Q5 R1 = CH1 On
+M101 D1 E15 P1 Q5 R2 = CH2 On
+M101 D1 E15 P1 Q5 R3 = CH1 On/CH2 On
+M101 D1 E15 P1 Q5 R4 = CH3 On
+M101 D1 E15 P1 Q5 R5 = CH1 On/CH3 On
+M101 D1 E15 P1 Q5 R6 = CH2 On/CH3 On
+M101 D1 E15 P1 Q5 R7 = CH1 On/CH2 On/CH3 On
+M101 D1 E15 P1 Q5 R8 = CH4 On
+M101 D1 E15 P1 Q5 R9 = CH1 On/CH4 On
+M101 D1 E15 P1 Q5 R10 = CH2 On/CH4 On
+M101 D1 E15 P1 Q5 R11 = CH1 On/CH2 On/CH4 On
+M101 D1 E15 P1 Q5 R12 = CH3 On/CH4 On
+M101 D1 E15 P1 Q5 R13 = CH1 On/CH3 On/CH4 On
+M101 D1 E15 P1 Q5 R14 = CH2 On/CH3 On/CH4 On
+M101 D1 E15 P1 Q5 R15 = CH1 On/CH2 On/CH3 On/CH4 On
