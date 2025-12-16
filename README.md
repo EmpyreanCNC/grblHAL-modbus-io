@@ -99,3 +99,21 @@ Empyrean: Now with added multiple coil write functionality
 - M101 D1 E15 P1 Q5 R13 = CH1 On/CH3 On/CH4 On
 - M101 D1 E15 P1 Q5 R14 = CH2 On/CH3 On/CH4 On
 - M101 D1 E15 P1 Q5 R15 = CH1 On/CH2 On/CH3 On/CH4 On
+- 
+--------------------------------------------------------------------------------------------------------------------------------------------
+Empyrean: Programming your modbus IO board through IOsender
+--------------------------------------------------------------------------------------------------------------------------------------------
+The R4DVI04 modbus IO board used for testing can have its modbus io address updated through the modbus write command.
+the following command can be used to do that,
+
+Enter it into your gcode sender mdi.
+
+M101 D2 E6 P254 Q3
+
+This command is writing the value of 3 to the register 254 at modbus device 2. This is the register that defines the modbus address for **THIS BOARD** this will **not** be the same for other boards!
+
+By default the board used for development came as modbus device address 1.
+
+
+
+
